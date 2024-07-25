@@ -25,22 +25,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import com.service.aidlsample.services.MediaPlaybackService
 import com.service.aidlsample.services.VerifyAidlService
 import com.service.aidlsample.ui.theme.AIDLSampleTheme
+import com.service.aidlsample.view.MainScreen
+import com.service.aidlsample.view.MediaScreen
 
 class MainActivity : ComponentActivity() {
+    var mediaService: IMediaPlaybackService? = null
     var aidlService: IMyAidlInterface? = null
     var isBound = false
 
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            aidlService = IMyAidlInterface.Stub.asInterface(service)
+           // aidlService = IMyAidlInterface.Stub.asInterface(service)
+            mediaService = IMediaPlaybackService.Stub.asInterface(service)
+
+
             isBound = true
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            aidlService = null
+           // aidlService = null
+            mediaService = null
             isBound = false
         }
     }
@@ -49,13 +57,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MainScreen()
+           // MainScreen()
+            MediaScreen()
         }
         bindService()
     }
 
     private fun bindService() {
-        Intent(this, VerifyAidlService::class.java).also { intent ->
+        /*Intent(this, VerifyAidlService::class.java).also { intent ->
+            bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        }*/
+        Intent(this, MediaPlaybackService::class.java).also { intent ->
             bindService(intent, connection, Context.BIND_AUTO_CREATE)
         }
     }
@@ -69,21 +81,3 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-@Composable
-fun MainScreen() {
-    var result by remember { mutableStateOf(0) }
-    val context = LocalContext.current
-    val mainActivity = context as MainActivity
-
-    Column(verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize()) {
-        Text(text = "Result: $result")
-        Button(onClick = {
-            if (mainActivity.isBound) {
-                result = ((mainActivity.aidlService?.add(3, 5) ?: 0) as? Int)?:0
-            }
-        }) {
-            Text(text = "Add 3 + 5")
-        }
-    }
-}

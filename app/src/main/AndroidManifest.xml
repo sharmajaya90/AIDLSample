@@ -30,6 +30,14 @@
                 <action android:name="com.service.aidlsample.ValidateAidlInterface"/>
             </intent-filter>
         </service>
+        <service
+            android:name=".services.MediaPlaybackService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.service.aidlsample.IMediaPlaybackService" />
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>
